@@ -28,24 +28,83 @@ Below is the complete wiring of what we used for this car.
 
 
 ## Code
-Below is our code that oves the car back and forth using PID tuning on a setpoint. (Atticus was here.)
+Below is our code that oves the car back and forth using PID tuning on a setpoint. 
 
 ```python
 Code goes here
 
-This code is for when the Motor and sensor is introduced
-from simple_pid import PID
-pid = PID(1, 0.1, 0.05, setpoint=1)
+import time
+import board
+import adafruit_hcsr04
+import digitalio
 
-# Assume we have a system we want to control in controlled_system
-v = controlled_system.update(0)
+# Ultrasonic Sensor Pins
+TRIG_PIN = board.D2
+ECHO_PIN = board.D3
+
+# Motor Driver Pins
+AIN1_PIN = board.D5
+AIN2_PIN = board.D6
+BIN1_PIN = board.D7
+BIN2_PIN = board.D8
+
+# Set up GPIO pins
+sonar = adafruit_hcsr04.HCSR04(trigger_pin=TRIG_PIN, echo_pin=ECHO_PIN)
+AIN1 = digitalio.DigitalInOut(AIN1_PIN)
+AIN2 = digitalio.DigitalInOut(AIN2_PIN)
+BIN1 = digitalio.DigitalInOut(BIN1_PIN)
+BIN2 = digitalio.DigitalInOut(BIN2_PIN)
+
+
+AIN1.direction = digitalio.Direction.OUTPUT
+AIN2.direction = digitalio.Direction.OUTPUT
+BIN1.direction = digitalio.Direction.OUTPUT
+BIN2.direction = digitalio.Direction.OUTPUT
+
+
+# Set PWM pins to output low
+AIN1.value = False
+BIN1.value = False
 
 while True:
-    # Compute new output from the PID according to the systems current value
-    control = pid(v)
-    
-    # Feed the PID output to the system and get its current value
-    v = controlled_system.update(control)
+    try:
+        # Read distance from ultrasonic sensor
+        distance = sonar.distance
+        print("Distance: {0:0.2f} cm".format(distance))
+
+        # If distance is greater than 15 cm, move forward
+        if distance > 15:
+            AIN1.value = True
+            AIN2.value = False
+            BIN1.value = True
+            BIN2.value = False
+
+        # If distance is less than 15 cm, move backward
+        elif distance < 15:
+            AIN1.value = False
+            AIN2.value = True
+            BIN1.value = False
+            BIN2.value = True
+
+        # If distance is exactly 15 cm, stop moving
+        else:
+            AIN1.value = False
+            AIN2.value = False
+            BIN1.value = False
+            BIN2.value = False
+
+        # Turn on motors
+        AIN1.value = True
+        AIN2.value = True
+        BIN1.value = True
+        BIN2.value = True
+        # Wait for 0.1 seconds before reading distance again
+        time.sleep(0.1)
+
+    # If there's an error reading distance, print the error message and continue
+    except RuntimeError as e:
+        print("Error: ", e)
+        continue
 ```
 
 ## Final Product
