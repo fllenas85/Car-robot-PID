@@ -31,7 +31,6 @@ Below is the complete wiring of what we used for this car.
 Below is our code that oves the car back and forth using PID tuning on a setpoint. 
 
 ```python
-Code goes here
 
 import time
 import board
