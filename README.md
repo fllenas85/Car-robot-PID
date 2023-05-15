@@ -1,5 +1,5 @@
 # PID Robot Car
-This project is about a robot car that is supposed to stay away a certain distance from a setpoint. 
+This project is a robot car that will always stay 15cm away from a setpoint by using 2 TT Motors, DRV8833, and Ultrasonic sensor.
 ## Table of Contents
 * [Planning](#Planning)
 * [Design](#Design)
